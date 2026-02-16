@@ -29,27 +29,44 @@
                 <h6 class="fw-bold text-dark mb-3">
                     <i class="bi bi-pencil-square me-1"></i> Lengkapi Data PO
                 </h6>
-                <div class="row g-3">
+                
+                <div class="row g-3 mb-3">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">No PO</label>
-                        <input wire:model="no_po" type="text" class="form-control form-control-sm border-warning" placeholder="Nomor PO...">
+                        <input wire:model="no_po" type="text" class="form-control form-control-sm border-warning">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">Tgl PO (Angka)</label>
-                        <input wire:model="tgl_po" type="number" class="form-control form-control-sm border-warning" placeholder="Contoh: 14">
+                        <input wire:model="tgl_po" type="number" class="form-control form-control-sm border-warning">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">Bulan PO</label>
-                        <input wire:model="bulan_po" type="text" class="form-control form-control-sm border-warning" placeholder="Contoh: Februari">
+                        <input wire:model="bulan_po" type="text" class="form-control form-control-sm border-warning">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">PIC</label>
                         <input wire:model="pic" type="text" class="form-control form-control-sm border-warning">
                     </div>
                 </div>
+
+                <div class="border-top pt-2">
+                    <label class="small fw-bold text-primary mb-2 d-block">Data Rekening (Untuk Surat)</label>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input wire:model="nama_bank" type="text" class="form-control form-control-sm" placeholder="Nama Bank (Contoh: BRI)">
+                        </div>
+                        <div class="col-md-4">
+                            <input wire:model="no_rekening" type="text" class="form-control form-control-sm" placeholder="No. Rekening">
+                        </div>
+                        <div class="col-md-4">
+                            <input wire:model="atas_nama" type="text" class="form-control form-control-sm" placeholder="Atas Nama">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mt-3 d-flex gap-2 justify-content-end">
                     <button wire:click="cancelEdit" class="btn btn-secondary btn-sm px-4">Batal</button>
-                    <button wire:click="update" class="btn btn-primary btn-sm px-4 fw-bold">Simpan PO</button>
+                    <button wire:click="update" class="btn btn-primary btn-sm px-4 fw-bold">Simpan Data</button>
                 </div>
             </div>
             @endif
@@ -59,10 +76,14 @@
                     <thead class="table-light">
                         <tr>
                             <th scope="col" class="px-3 py-3">No. Surat / Mitra</th>
+                            <th scope="col" class="px-3 py-3">Komoditi</th>
+                            <th scope="col" class="px-3 py-3">Kualitas</th>
+                            <th scope="col" class="px-3 py-3">Kemasan</th>
                             <th scope="col" class="px-3 py-3 text-end">Kuantum (Kg)</th>
                             <th scope="col" class="px-3 py-3 text-center">Status PO</th>
                             <th scope="col" class="px-3 py-3 text-center">Tgl PO</th>
                             <th scope="col" class="px-3 py-3">PIC</th>
+                            <th scope="col" class="px-3 py-3 text-end">Harga Satuan</th>
                             <th scope="col" class="px-3 py-3 text-end">Total Bayar</th>
                             <th scope="col" class="px-3 py-3 text-center">Aksi</th>
                         </tr>
@@ -74,6 +95,18 @@
                                 <div class="fw-bold text-dark">{{ $spp->mitra_kerja }}</div>
                                 <small class="text-primary d-block font-monospace mt-1">{{ $spp->no_surat ?? '-' }}</small>
                                 <small class="text-muted fst-italic" style="font-size: 0.75rem;">Petani: {{ $spp->petani ?? '-' }}</small>
+                            </td>
+
+                            </td>
+
+                            <td class="px-3 text-secondary small">
+                                {{ $spp->penawaran->komoditi ?? '-' }}
+                            </td>
+                            <td class="px-3 text-secondary small">
+                                {{ $spp->penawaran->kualitas ?? '-' }}
+                            </td>
+                            <td class="px-3 text-secondary small">
+                                {{ $spp->penawaran->kemasan ?? '-' }}
                             </td>
 
                             <td class="px-3 text-end fw-medium font-monospace">
@@ -94,6 +127,9 @@
 
                             <td class="px-3 text-muted small">{{ $spp->pic ?? '-' }}</td>
                             
+                            <td class="px-3 text-end fw-medium text-secondary">
+                                Rp {{ number_format($spp->harga, 0, ',', '.') }}
+                            </td>
                             <td class="px-3 text-end fw-bold text-dark">
                                 Rp {{ number_format($spp->total_bayar, 0, ',', '.') }}
                             </td>
@@ -105,9 +141,9 @@
                                     </button>
                                 @else
                                     <div class="d-flex flex-col gap-1 justify-content-center">
-                                        <button class="btn btn-success btn-sm shadow-sm w-100" style="font-size: 0.75rem;">
-                                            <i class="bi bi-printer me-1"></i> Cetak
-                                        </button>
+                                        <a href="{{ route('spp.cetak', $spp->id) }}" target="_blank" class="btn btn-success btn-sm w-100 shadow-sm" style="font-size: 0.75rem;">
+                                            <i class="bi bi-printer me-1"></i> Cetak Surat
+                                        </a>
                                         <a href="#" wire:click.prevent="edit({{ $spp->id }})" class="text-decoration-none small text-secondary">
                                             Ubah Data
                                         </a>

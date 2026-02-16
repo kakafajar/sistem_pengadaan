@@ -8,53 +8,46 @@ use App\Models\Spp;
 class SppTable extends Component
 {
     public $spps;
-    
-    // Variabel untuk Mode Edit
     public $isEditing = false;
-    public $editId = null;
-    
-    // Variabel Form Edit PO
+    public $editId;
+
+    // Data PO Lama
     public $no_po, $tgl_po, $bulan_po, $pic;
 
-    // Ambil data terbaru setiap halaman dibuka
+    // 1. TAMBAHAN BARU: Data Rekening
+    public $nama_bank, $no_rekening, $atas_nama;
+
     public function mount()
     {
         $this->spps = Spp::with('penawaran')->latest()->get();
     }
 
-    // Fungsi saat tombol "Edit" ditekan
     public function edit($id)
     {
         $this->isEditing = true;
         $this->editId = $id;
-        
         $spp = Spp::find($id);
+
         $this->no_po = $spp->no_po;
-        $this->tgl_po = $spp->tgl_po; // Tanggal saja (misal: 2)
-        $this->bulan_po = $spp->bulan_po; // Bulan (misal: Februari)
+        $this->tgl_po = $spp->tgl_po;
+        $this->bulan_po = $spp->bulan_po;
         $this->pic = $spp->pic;
+
+        // 2. Load Data Bank dari Database ke Form
+        $this->nama_bank = $spp->nama_bank;
+        $this->no_rekening = $spp->no_rekening;
+        $this->atas_nama = $spp->atas_nama;
     }
 
-    // Fungsi Batal Edit
-    public function cancelEdit()
-    {
-        $this->isEditing = false;
-        $this->reset(['editId', 'no_po', 'tgl_po', 'bulan_po', 'pic']);
-    }
-
-    // Fungsi Simpan Perubahan PO
     public function update()
     {
-        // 1. CEK VALIDASI (Pagar Pertama)
+        // Validasi
         $this->validate([
-            // Cek unik di tabel spps kolom no_po, TAPI abaikan (ignore) punya diri sendiri
-            'no_po' => 'required|unique:spps,no_po,' . $this->editId,
+            'no_po' => 'required',
             'tgl_po' => 'required|numeric',
             'bulan_po' => 'required',
             'pic' => 'required',
-        ], [
-            'no_po.unique' => 'No PO ini sudah terpakai! Cek data lain.',
-            'no_po.required' => 'No PO wajib diisi.'
+            // Bank boleh kosong (nullable), jadi tidak perlu required
         ]);
 
         $spp = Spp::find($this->editId);
@@ -65,16 +58,25 @@ class SppTable extends Component
             'bulan_po' => $this->bulan_po,
             'pic' => $this->pic,
             'tgl_hari_ini' => now(),
+
+            // 3. Simpan Data Bank ke Database
+            'nama_bank' => $this->nama_bank,
+            'no_rekening' => $this->no_rekening,
+            'atas_nama' => $this->atas_nama,
         ]);
 
         $this->isEditing = false;
-        $this->mount();
-        session()->flash('message', 'Data PO Berhasil Dilengkapi!');
+        $this->mount(); // Refresh data
+        session()->flash('message', 'Data PO & Rekening Berhasil Disimpan!');
     }
-public function render()
+
+    public function cancelEdit()
     {
-        // Kita paksa pakai layout yang benar
-        return view('livewire.spp-table')
-            ->layout('components.layouts.app'); 
+        $this->isEditing = false;
+    }
+
+    public function render()
+    {
+        return view('livewire.spp-table')->layout('components.layouts.app');
     }
 }
