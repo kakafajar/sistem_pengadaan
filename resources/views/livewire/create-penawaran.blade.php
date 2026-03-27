@@ -26,7 +26,12 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-secondary">Mitra</label>
-                        <input wire:model="mitra" type="text" class="form-control bg-light" placeholder="Nama PT/CV">
+                        <select wire:model="mitra" class="form-select bg-light">
+                            <option value="">-- Pilih Mitra --</option>
+                            @foreach($mitras as $m)
+                                <option value="{{ $m->nama_mitra }}">{{ $m->nama_mitra }}</option>
+                            @endforeach
+                        </select>
                         @error('mitra') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 

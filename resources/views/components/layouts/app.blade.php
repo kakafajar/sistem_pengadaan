@@ -40,7 +40,7 @@
         }
 
         .sidebar-header {
-            padding: 24px;
+            padding: 12px 24px;
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
@@ -169,12 +169,12 @@
 </head>
 <body>
 
+    @if(!request()->routeIs('login'))
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="/" class="brand-logo">
-                <div class="logo-icon">B</div>
-                <div class="brand-text">SP <span class="text-warning">Bulog</span></div>
+                <img src="{{ asset('img/bulog.webp') }}" alt="Bulog Logo" style="height: 120px; width: auto;">
             </a>
         </div>
         
@@ -190,21 +190,57 @@
                 <i class="bi bi-inboxes"></i>
                 <span>Data SPP & PO</span>
             </a>
+
+            <a href="/preview-surat" class="nav-link {{ request()->routeIs('preview.surat') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-pdf"></i>
+                <span>Preview Surat</span>
+            </a>
+
+            <a href="/data-mitra" class="nav-link {{ request()->is('data-mitra') ? 'active' : '' }}">
+                <i class="bi bi-person-lines-fill"></i>
+                <span>Data Rekening Mitra</span>
+            </a>
+
+            <div class="mt-4 px-2 pt-3 border-top">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2" style="border-radius: 8px;">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="sidebar-footer">
             &copy; 2026 Kerja Praktik Bulog
         </div>
     </nav>
+    @endif
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Mobile Toggle Button (Optional logic needed for JS, kept simple for now) -->
-        <div class="d-md-none mb-4">
-             <button class="btn btn-light shadow-sm" onclick="document.querySelector('.sidebar').classList.toggle('show')">
-                <i class="bi bi-list"></i> Menu
-            </button>
+    <main class="main-content {{ request()->routeIs('login') ? 'm-0 p-0' : '' }}">
+        @if(!request()->routeIs('login'))
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <!-- Bagian Kiri: Tombol Menu Mobile -->
+            <div>
+                <button class="btn btn-light shadow-sm d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('show')">
+                    <i class="bi bi-list"></i> Menu
+                </button>
+            </div>
+            
+            <!-- Bagian Kanan: Profil User -->
+            <div class="d-flex align-items-center">
+                <div class="text-end me-3 d-none d-sm-block">
+                    <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ auth()->user()->name ?? 'User' }}</div>
+                    <div class="text-success" style="font-size: 0.75rem;"><i class="bi bi-circle-fill me-1" style="font-size: 0.4rem; vertical-align: middle;"></i>Online</div>
+                </div>
+                <div class="bg-white border rounded-circle text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                    <i class="bi bi-person-fill fs-5"></i>
+                </div>
+            </div>
         </div>
+        @endif
 
         {{ $slot }}
     </main>
