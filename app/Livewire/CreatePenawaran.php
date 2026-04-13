@@ -23,6 +23,34 @@ class CreatePenawaran extends Component
     public $gudang;
     public $kode_erp;
 
+    public function mount()
+    {
+        $this->tgl_penawaran = date('Y-m-d');
+        $this->no_surat = $this->generateNoSurat();
+    }
+
+    public function generateNoSurat()
+    {
+        $month = date('m');
+        $year = date('Y');
+        
+        // Cari no_surat terakhir yang mengikuti pola kita
+        $lastPenawaran = Penawaran::where('no_surat', 'like', "%/GABAH/%/%")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastPenawaran) {
+            $parts = explode('/', $lastPenawaran->no_surat);
+            $lastNumber = (int) $parts[0];
+            $nextNumber = $lastNumber + 1;
+        } else {
+            // Jika belum ada, mulai dari 1
+            $nextNumber = 1;
+        }
+
+        return "{$nextNumber}/GABAH/{$month}/{$year}";
+    }
+
     // ... Aturan Validasi ...
     protected $rules = [
         'no_surat' => 'required|unique:penawarans,no_surat',
@@ -87,6 +115,7 @@ class CreatePenawaran extends Component
         ]);
 
         $this->reset();
+        $this->mount();
         session()->flash('message', 'Data Penawaran Berhasil Disimpan!');
     }
 
